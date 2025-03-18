@@ -660,7 +660,6 @@ const App: React.FC = () => {
                   transition={{ duration: 1, delay: 0.6 }}
                 >
                   اطلب الآن
-                  <ArrowRight size={20} />
                 </motion.button>
                 <motion.button 
                   onClick={scrollToBundles}
