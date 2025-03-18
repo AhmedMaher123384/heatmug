@@ -99,8 +99,8 @@ const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
       transition={{ duration: 0.8 }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
-          <div className="w-32 sm:w-40">
+        <div className="flex flex-col sm:flex-row items-center justify-between">
+          <div className="w-32 sm:w-40 mb-4 sm:mb-0">
             {logoSrc ? (
               <motion.img
                 src={logoSrc}
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
             ))}
           </motion.nav>
           <motion.button
-            className="px-4 py-2 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-300"
+            className="px-4 py-2 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0 }}
