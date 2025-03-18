@@ -99,8 +99,8 @@ const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
       transition={{ duration: 0.8 }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between">
-          <div className="w-32 sm:w-40 mb-4 sm:mb-0">
+        <div className="flex items-center justify-between">
+          <div className="w-32 sm:w-40">
             {logoSrc ? (
               <motion.img
                 src={logoSrc}
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
             ))}
           </motion.nav>
           <motion.button
-            className="px-4 py-2 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
+            className="px-4 py-2 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-300"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0 }}
@@ -625,69 +625,69 @@ const App: React.FC = () => {
       <Header logoSrc={logoSrc === 'fallback' ? null : logoSrc} />
       
       <section className="relative pt-24 pb-12 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-8 items-center">
-            <motion.div 
-              className="space-y-6 flex-1"
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1.2 }}
-            >
-              <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-green-900 leading-tight tracking-wide"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.2 }}
-              >
-                استمتع بمشروبك دافئ في آي وقت!
-              </motion.h1>
-              <motion.p 
-                className="text-lg sm:text-xl md:text-2xl text-gray-700 leading-relaxed"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.4 }}
-              >
-                مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
-              </motion.p>
-              <div className="space-y-4 flex flex-col sm:flex-row gap-4">
-                <motion.button 
-                  onClick={scrollToForm}
-                  className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.6 }}
-                >
-                  اطلب الآن
-                </motion.button>
-                <motion.button 
-                  onClick={scrollToBundles}
-                  className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.8 }}
-                >
-                  شوف العروض
-                </motion.button>
-              </div>
-            </motion.div>
-            <div className="flex flex-col items-center gap-4 flex-1">
-              <HeroImage />
-              <motion.div 
-                className="text-center text-white bg-gradient-to-r from-pink-600 to-pink-500 px-6 py-2 rounded-xl shadow-lg"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 }}
-              >
-                <p className="text-base sm:text-lg font-bold">الخصم ينتهي خلال: <span>{formatTime(timeLeft)}</span></p>
-              </motion.div>
-            </div>
-          </div>
+  <div className="container mx-auto px-4">
+    <div className="flex flex-col md:flex-row gap-8 items-center">
+      <motion.div 
+        className="space-y-6 flex-1"
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1.2 }}
+      >
+        <motion.h1 
+          className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-green-900 leading-tight tracking-wide text-center md:text-right"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        >
+          استمتع بمشروبك دافئ في آي وقت!
+        </motion.h1>
+        <motion.p 
+          className="text-lg sm:text-xl md:text-2xl text-gray-700 leading-relaxed text-center md:text-right"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.4 }}
+        >
+          مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
+        </motion.p>
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <motion.button 
+            onClick={scrollToForm}
+            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6 }}
+          >
+            اطلب الآن
+          </motion.button>
+          <motion.button 
+            onClick={scrollToBundles}
+            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.8 }}
+          >
+            شوف العروض
+          </motion.button>
         </div>
-      </section>
+      </motion.div>
+      <div className="flex flex-col items-center gap-4 flex-1">
+        <HeroImage />
+        <motion.div 
+          className="text-center text-white bg-gradient-to-r from-pink-600 to-pink-500 px-6 py-2 rounded-xl shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+        >
+          <p className="text-base sm:text-lg font-bold">الخصم ينتهي خلال: <span>{formatTime(timeLeft)}</span></p>
+        </motion.div>
+      </div>
+    </div>
+  </div>
+</section>
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
