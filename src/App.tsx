@@ -626,9 +626,9 @@ const App: React.FC = () => {
       
       <section className="relative pt-24 pb-12 overflow-hidden">
   <div className="container mx-auto px-0 sm:px-4">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div className="flex flex-col md:flex-row gap-8 items-center">
       <motion.div 
-        className="space-y-6"
+        className="space-y-6 flex-1"
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1.2 }}
@@ -649,22 +649,22 @@ const App: React.FC = () => {
         >
           مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
         </motion.p>
-        <div className="grid place-items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
           <button 
             onClick={scrollToForm}
-            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
+            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 max-w-xs w-full sm:w-auto mx-auto"
           >
             اطلب الآن
           </button>
           <button 
             onClick={scrollToBundles}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
+            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs w-full sm:w-auto mx-auto"
           >
             شوف العروض
           </button>
         </div>
       </motion.div>
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 flex-1">
         <HeroImage />
         <motion.div 
           className="text-center text-white bg-gradient-to-r from-pink-600 to-pink-500 px-6 py-2 rounded-xl shadow-lg"
