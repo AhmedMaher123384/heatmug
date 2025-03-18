@@ -625,7 +625,7 @@ const App: React.FC = () => {
       <Header logoSrc={logoSrc === 'fallback' ? null : logoSrc} />
       
       <section className="relative pt-24 pb-12 overflow-hidden">
-  <div className="container mx-auto px-4">
+  <div className="container mx-auto px-2 sm:px-4">
     <div className="flex flex-col md:flex-row gap-8 items-center">
       <motion.div 
         className="space-y-6 flex-1"
@@ -649,29 +649,19 @@ const App: React.FC = () => {
         >
           مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
         </motion.p>
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <motion.button 
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mx-auto">
+          <button 
             onClick={scrollToForm}
-            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 w-64 sm:w-auto"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.6 }}
+            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
           >
             اطلب الآن
-          </motion.button>
-          <motion.button 
+          </button>
+          <button 
             onClick={scrollToBundles}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-64 sm:w-auto"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.8 }}
+            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
           >
             شوف العروض
-          </motion.button>
+          </button>
         </div>
       </motion.div>
       <div className="flex flex-col items-center gap-4 flex-1">
