@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle, 
@@ -19,7 +20,8 @@ import {
   Gift, 
   Shield,
   Check,
-  Trash2
+  Trash2,
+  FileText
 } from 'lucide-react';
 
 // Dynamic image imports
@@ -34,14 +36,18 @@ const productImages = {
   logo: () => import('../asserts/logo.png').then(module => module.default),
 };
 
-// مكون FeatureCard
-interface FeatureCardProps {
-  icon: React.ReactNode;
+// تعريف نوع Color
+type Color = "أخضر" | "وردي";
+
+// تعريف نوع Bundle
+interface Bundle {
   title: string;
-  description: string;
+  quantity: number;
+  bundlePrice: number;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
+// مكون FeatureCard
+const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
   <motion.div 
     className="p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-xl transition-shadow duration-300"
     initial={{ opacity: 0, y: 30 }}
@@ -86,11 +92,7 @@ const HeroImage: React.FC = () => {
 };
 
 // مكون Header
-interface HeaderProps {
-  logoSrc: string | null;
-}
-
-const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
+const Header: React.FC<{ logoSrc: string | null }> = ({ logoSrc }) => {
   return (
     <motion.header 
       className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-md py-3"
@@ -148,7 +150,7 @@ const Header: React.FC<HeaderProps> = ({ logoSrc }) => {
 };
 
 // مكون الأسئلة الشائعة
-const FAQSection = () => {
+const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqItems = [
@@ -239,7 +241,7 @@ const FAQSection = () => {
 };
 
 // مكون سياسة الإرجاع والاستبدال
-const ReturnPolicySection = () => {
+const ReturnPolicySection: React.FC = () => {
   return (
     <section id="return-policy" className="py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
@@ -359,7 +361,7 @@ const ReturnPolicySection = () => {
 };
 
 // مكون باقات العروض
-const BundlesSection = () => {
+const BundlesSection: React.FC = () => {
   const bundlesData = [
     {
       title: "عرض المحبين",
@@ -496,7 +498,6 @@ const BundlesSection = () => {
 
 // المكون الرئيسي App
 const App: React.FC = () => {
-  type Color = "أخضر" | "وردي";
   const [colorQuantities, setColorQuantities] = useState<{ [key in Color]: number }>({
     "أخضر": 0,
     "وردي": 0,
@@ -504,13 +505,13 @@ const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [logoSrc, setLogoSrc] = useState<string>('');
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
-  const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
-  const [selectedBundles, setSelectedBundles] = useState<{ title: string; quantity: number; bundlePrice: number }[]>([]);
+  const [selectedBundles, setSelectedBundles] = useState<Bundle[]>([]);
   const [timeLeft, setTimeLeft] = useState<number>(12 * 60 * 60); // 12 ساعة بالثواني
 
-  const defaultPrice = 100;
-  const originalPrice = 154;
+  const defaultPrice: number = 100;
+  const originalPrice: number = 154;
 
   const imageKeys = ['img1', 'img2', 'img3', 'img4', 'img5', 'img6'] as const;
 
@@ -547,15 +548,15 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const scrollToForm = () => {
+  const scrollToForm = (): void => {
     document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const scrollToBundles = () => {
+  const scrollToBundles = (): void => {
     document.getElementById('bundles')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const calculateTotal = () => {
+  const calculateTotal = (): number => {
     const bundlesTotal = selectedBundles.reduce((sum, bundle) => sum + bundle.bundlePrice, 0);
     const totalQuantityFromBundles = selectedBundles.reduce((sum, bundle) => sum + bundle.quantity, 0);
     const totalQuantity = Object.values(colorQuantities).reduce((sum, qty) => sum + qty, 0);
@@ -565,14 +566,14 @@ const App: React.FC = () => {
     return bundlesTotal + extraTotal;
   };
 
-  const updateQuantity = (color: Color, change: number) => {
+  const updateQuantity = (color: Color, change: number): void => {
     setColorQuantities(prev => ({
       ...prev,
       [color]: Math.max(0, prev[color] + change),
     }));
   };
 
-  const removeBundle = (index: number) => {
+  const removeBundle = (index: number): void => {
     const bundleToRemove = selectedBundles[index];
     setSelectedBundles(prev => prev.filter((_, i) => i !== index));
     setColorQuantities(prev => ({
@@ -581,7 +582,7 @@ const App: React.FC = () => {
     }));
   };
 
-  const addBundle = (title: string, quantity: number, bundlePrice: number) => {
+  const addBundle = (title: string, quantity: number, bundlePrice: number): void => {
     setSelectedBundles(prev => [...prev, { title, quantity, bundlePrice }]);
     setColorQuantities(prev => ({
       أخضر: prev.أخضر + Math.floor(quantity / 2),
@@ -589,7 +590,7 @@ const App: React.FC = () => {
     }));
   };
 
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -604,424 +605,500 @@ const App: React.FC = () => {
     { icon: "🎁", text: "تصميم أنيق: أخضر داكن أو وردي" },
   ];
 
-  const handleImageClick = (image: string) => {
+  const handleImageClick = (image: string): void => {
     setZoomedImage(image);
     setIsImageZoomed(true);
   };
 
-  const closeZoomedImage = () => {
+  const closeZoomedImage = (): void => {
     setIsImageZoomed(false);
     setZoomedImage(null);
   };
 
-  const FallbackLogo = () => (
+  const FallbackLogo: React.FC = () => (
     <div className="flex items-center">
       <span className="text-xl sm:text-2xl font-extrabold text-green-900">Heat<span className="text-pink-500">Mug</span></span>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans text-right">
-      <Header logoSrc={logoSrc === 'fallback' ? null : logoSrc} />
-      
-      <section className="relative pt-24 pb-12 overflow-hidden">
-  <div className="container mx-auto px-0 sm:px-4">
-    <div className="flex flex-col md:flex-row gap-8 items-center">
-      <motion.div 
-        className="space-y-6 flex-1"
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.2 }}
-      >
-        <motion.h1 
-          className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-green-900 leading-tight tracking-wide text-center md:text-right"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-        >
-          استمتع بمشروبك دافئ في آي وقت!
-        </motion.h1>
-        <motion.p 
-          className="text-lg sm:text-xl md:text-2xl text-gray-700 leading-relaxed text-center md:text-right"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4 }}
-        >
-          مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
-        </motion.p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-          <button 
-            onClick={scrollToForm}
-            className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 max-w-xs w-full sm:w-auto mx-auto"
-          >
-            اطلب الآن
-          </button>
-          <button 
-            onClick={scrollToBundles}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs w-full sm:w-auto mx-auto"
-          >
-            شوف العروض
-          </button>
-        </div>
-      </motion.div>
-      <div className="flex flex-col items-center gap-4 flex-1">
-        <HeroImage />
-        <motion.div 
-          className="text-center text-white bg-gradient-to-r from-pink-600 to-pink-500 px-6 py-2 rounded-xl shadow-lg"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-        >
-          <p className="text-base sm:text-lg font-bold">الخصم ينتهي خلال: <span>{formatTime(timeLeft)}</span></p>
-        </motion.div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-8">
-            <motion.div 
-              className="space-y-6 flex-1"
-              initial={{ opacity: 0, x: -100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-            >
-              <div className="relative w-full h-[300px] sm:h-[400px] rounded-2xl overflow-hidden shadow-xl">
-                {selectedImage ? (
-                  <img
-                    src={selectedImage}
-                    alt="عرض المنتج"
-                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 cursor-pointer"
-                    onClick={() => handleImageClick(selectedImage)}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-500">جاري التحميل...</div>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-3 justify-center">
-                {loadedImages.map((image, index) => (
-                  <motion.div
-                    key={index}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden cursor-pointer border-2 ${selectedImage === image ? 'border-green-900' : 'border-gray-300'} hover:border-green-600`}
-                    whileHover={{ scale: 1.1 }}
-                    onClick={() => setSelectedImage(image)}
+    <BrowserRouter>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans text-right">
+        <Header logoSrc={logoSrc === 'fallback' ? null : logoSrc} />
+        
+        <section className="relative pt-24 pb-12 overflow-hidden">
+          <div className="container mx-auto px-0 sm:px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <motion.div 
+                className="space-y-6"
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.2 }}
+              >
+                <motion.h1 
+                  className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-green-900 leading-tight tracking-wide text-center md:text-right"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.2 }}
+                >
+                  استمتع بمشروبك دافئ في آي وقت!
+                </motion.h1>
+                <motion.p 
+                  className="text-lg sm:text-xl md:text-2xl text-gray-700 leading-relaxed text-center md:text-right"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.4 }}
+                >
+                  مسخن قهوة كهربائي بتصميم عصري وأداء قوي - اطلبه الآن بخصم 35%!
+                </motion.p>
+                <div className="grid place-items-center gap-4">
+                  <button 
+                    onClick={scrollToForm}
+                    className="px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
                   >
-                    <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-            <motion.div 
-              className="space-y-6 flex-1"
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-            >
-              <div className="bg-gray-50 p-4 rounded-2xl shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between gap-4 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-pink-500 text-white text-sm sm:text-lg px-3 py-1 rounded-full font-semibold">خصم 35%</span>
-                    <p className="text-xs sm:text-sm text-gray-600">شامل الضريبة</p>
-                  </div>
-                  <span className="text-right">
-                    <span className="text-2xl sm:text-3xl font-bold text-green-900">{defaultPrice} ريال</span>
-                    <span className="text-base sm:text-lg text-gray-500 line-through ml-2">{originalPrice} ريال</span>
-                  </span>
+                    اطلب الآن
+                  </button>
+                  <button 
+                    onClick={scrollToBundles}
+                    className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-56 sm:w-auto"
+                  >
+                    شوف العروض
+                  </button>
                 </div>
+              </motion.div>
+              <div className="flex flex-col items-center gap-4">
+                <HeroImage />
+                <motion.div 
+                  className="text-center text-white bg-gradient-to-r from-pink-600 to-pink-500 px-6 py-2 rounded-xl shadow-lg"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 }}
+                >
+                  <p className="text-base sm:text-lg font-bold">الخصم ينتهي خلال: <span>{formatTime(timeLeft)}</span></p>
+                </motion.div>
               </div>
-              <div className="space-y-3">
-                {descriptionItems.map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className="text-xl sm:text-2xl text-pink-600">{item.icon}</span>
-                    <p className="text-gray-700 text-base sm:text-lg">{item.text}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row gap-8">
+              <motion.div 
+                className="space-y-6 flex-1"
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1 }}
+              >
+                <div className="relative w-full h-[300px] sm:h-[400px] rounded-2xl overflow-hidden shadow-xl">
+                  {selectedImage ? (
+                    <img
+                      src={selectedImage}
+                      alt="عرض المنتج"
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 cursor-pointer"
+                      onClick={() => handleImageClick(selectedImage)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500">جاري التحميل...</div>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {loadedImages.map((image, index) => (
+                    <motion.div
+                      key={index}
+                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden cursor-pointer border-2 ${selectedImage === image ? 'border-green-900' : 'border-gray-300'} hover:border-green-600`}
+                      whileHover={{ scale: 1.1 }}
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img src={image} alt={`صورة ${index + 1}`} className="w-full h-full object-cover" />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+              <motion.div 
+                className="space-y-6 flex-1"
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1 }}
+              >
+                <div className="bg-gray-50 p-4 rounded-2xl shadow-lg border border-gray-100">
+                  <div className="flex items-center justify-between gap-4 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-pink-500 text-white text-sm sm:text-lg px-3 py-1 rounded-full font-semibold">خصم 35%</span>
+                      <p className="text-xs sm:text-sm text-gray-600">شامل الضريبة</p>
+                    </div>
+                    <span className="text-right">
+                      <span className="text-2xl sm:text-3xl font-bold text-green-900">{defaultPrice} ريال</span>
+                      <span className="text-base sm:text-lg text-gray-500 line-through ml-2">{originalPrice} ريال</span>
+                    </span>
                   </div>
-                ))}
-              </div>
+                </div>
+                <div className="space-y-3">
+                  {descriptionItems.map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <span className="text-xl sm:text-2xl text-pink-600">{item.icon}</span>
+                      <p className="text-gray-700 text-base sm:text-lg">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+                <motion.button 
+                  onClick={scrollToBundles}
+                  className="w-full py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  شوف العروض
+                </motion.button>
+                <motion.button 
+                  onClick={scrollToForm}
+                  className="w-full py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  اطلب الآن
+                </motion.button>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {isImageZoomed && zoomedImage && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeZoomedImage}
+          >
+            <motion.img
+              src={zoomedImage}
+              alt="صورة مكبرة"
+              className="max-w-[90%] max-h-[90%] object-contain"
+              initial={{ scale: 0.5 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              className="absolute top-4 right-4 text-white text-2xl bg-red-600 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-700 transition-colors"
+              onClick={closeZoomedImage}
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
+
+        <section id="features" className="py-16 bg-gradient-to-b from-white to-gray-50">
+          <div className="container mx-auto px-4">
+            <motion.h2 
+              className="text-3xl sm:text-4xl font-extrabold text-center mb-12 text-green-900"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              ليش تختاره؟
+            </motion.h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              <FeatureCard icon={<ThermometerSun size={40} />} title="تحكم فاخر" description="الحرارة على مزاجك" />
+              <FeatureCard icon={<Coffee size={40} />} title="تصميم أنيق" description="خفيف ومميز" />
+              <FeatureCard icon={<Battery size={40} />} title="تسخين سريع" description="دفء فوري بأمان" />
+              <FeatureCard icon={<CheckCircle size={40} />} title="جودة عالية" description="يدوم معك طويل" />
+            </div>
+            <motion.div 
+              className="text-center mt-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
               <motion.button 
                 onClick={scrollToBundles}
-                className="w-full py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 شوف العروض
               </motion.button>
-              <motion.button 
-                onClick={scrollToForm}
-                className="w-full py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                اطلب الآن
-              </motion.button>
             </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {isImageZoomed && zoomedImage && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={closeZoomedImage}
-        >
-          <motion.img
-            src={zoomedImage}
-            alt="صورة مكبرة"
-            className="max-w-[90%] max-h-[90%] object-contain"
-            initial={{ scale: 0.5 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <button
-            className="absolute top-4 right-4 text-white text-2xl bg-red-600 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-700 transition-colors"
-            onClick={closeZoomedImage}
-          >
-            ×
-          </button>
-        </motion.div>
-      )}
+        <BundlesSection />
 
-      <section id="features" className="py-16 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.h2 
-            className="text-3xl sm:text-4xl font-extrabold text-center mb-12 text-green-900"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            ليش تختاره؟
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <FeatureCard icon={<ThermometerSun size={40} />} title="تحكم فاخر" description="الحرارة على مزاجك" />
-            <FeatureCard icon={<Coffee size={40} />} title="تصميم أنيق" description="خفيف ومميز" />
-            <FeatureCard icon={<Battery size={40} />} title="تسخين سريع" description="دفء فوري بأمان" />
-            <FeatureCard icon={<CheckCircle size={40} />} title="جودة عالية" description="يدوم معك طويل" />
-          </div>
-          <motion.div 
-            className="text-center mt-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <motion.button 
-              onClick={scrollToBundles}
-              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              شوف العروض
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <section id="order-form" className="py-16 bg-green-900 text-white">
+                <div className="container mx-auto px-4">
+                  <motion.div 
+                    dir="rtl"
+                    className="bg-white text-green-900 rounded-2xl p-6 shadow-2xl max-w-2xl mx-auto"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <h3 className="text-2xl sm:text-3xl font-extrabold mb-6 text-right">اطلب بكل سهولة الآن!</h3>
+                    <form
+                      onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                        e.preventDefault();
+                        const formData = {
+                          name: (e.target as any).fullName.value,
+                          phone: (e.target as any).phone.value,
+                          address: (e.target as any).address.value,
+                          notes: (e.target as any).notes.value,
+                        };
+                        
+                        try {
+                          const response = await fetch('https://script.google.com/macros/s/AKfycbyh-5cGE9X0dlsrnuhqMhnngYTEmchobRRhE9CS_bEHKJsqtvcrHlXn1ygG4WCcTPtQ/exec', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(formData),
+                          });
+                          
+                          const result = await response.json();
+                          if (result.success) {
+                            window.location.href = `/thank-you?orderId=${result.orderId}`;
+                          } else {
+                            alert('فيه مشكلة، حاول تاني!');
+                          }
+                        } catch (error) {
+                          console.error('Error submitting order:', error);
+                          alert('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.');
+                        }
+                      }}
+                      className="space-y-4 mb-6"
+                    >
+                      {[
+                        { placeholder: "الاسم الكامل", icon: User, name: "fullName" },
+                        { placeholder: "رقم الجوال", icon: Phone, name: "phone" },
+                        { placeholder: "العنوان", icon: MapPin, name: "address" },
+                        { placeholder: "ملاحظات (اختياري)", icon: FileText, name: "notes" },
+                      ].map((field, index) => (
+                        <div key={index} className="relative">
+                          {field.name === "notes" ? (
+                            <textarea
+                              placeholder={field.placeholder}
+                              name={field.name}
+                              className="w-full p-3 border border-gray-200 rounded-xl text-right pr-10 focus:ring-2 focus:ring-green-900 focus:border-transparent transition-all duration-300 h-24 resize-none"
+                            />
+                          ) : (
+                            <input 
+                              type={field.placeholder === "رقم الجوال" ? "tel" : "text"}
+                              placeholder={field.placeholder}
+                              name={field.name}
+                              className="w-full p-3 border border-gray-200 rounded-xl text-right pr-10 focus:ring-2 focus:ring-green-900 focus:border-transparent transition-all duration-300"
+                              required
+                            />
+                          )}
+                          <field.icon className="absolute top-1/2 right-3 transform -translate-y-1/2 text-green-900" size={18} />
+                        </div>
+                      ))}
+                      
+                      {selectedBundles.length > 0 && (
+                        <div className="mb-6 text-right">
+                          <h4 className="text-lg sm:text-xl font-bold mb-4">العروض المختارة</h4>
+                          <div className="space-y-3">
+                            {selectedBundles.map((bundle, index) => (
+                              <div key={index} className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                  <button
+                                    onClick={() => removeBundle(index)}
+                                    className="text-red-600 hover:text-red-800 transition-colors"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                  <span className="text-gray-700 text-sm sm:text-base">{bundle.title} ({bundle.quantity} قطع - {bundle.bundlePrice} ريال)</span>
+                                </div>
+                                <button
+                                  onClick={() => addBundle(bundle.title, bundle.quantity, bundle.bundlePrice)}
+                                  className="text-green-600 hover:text-green-800 transition-colors"
+                                >
+                                  <span className="text-xl font-bold">+</span>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-      <BundlesSection />
-
-      <section id="order-form" className="py-16 bg-green-900 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            dir="rtl"
-            className="bg-white text-green-900 rounded-2xl p-6 shadow-2xl max-w-2xl mx-auto"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h3 className="text-2xl sm:text-3xl font-extrabold mb-6 text-right">اطلب بكل سهولة الآن!</h3>
-            <div className="space-y-4 mb-6">
-              {[
-                { placeholder: "الاسم الكامل", icon: User, name: "fullName" },
-                { placeholder: "رقم الجوال", icon: Phone, name: "phone" },
-                { placeholder: "العنوان", icon: MapPin, name: "address" },
-              ].map((field, index) => (
-                <div key={index} className="relative">
-                  <input 
-                    type={field.placeholder === "رقم الجوال" ? "tel" : "text"}
-                    placeholder={field.placeholder}
-                    name={field.name}
-                    className="w-full p-3 border border-gray-200 rounded-xl text-right pr-10 focus:ring-2 focus:ring-green-900 focus:border-transparent transition-all duration-300"
-                  />
-                  <field.icon className="absolute top-1/2 right-3 transform -translate-y-1/2 text-green-900" size={18} />
-                </div>
-              ))}
-            </div>
-
-            {selectedBundles.length > 0 && (
-              <div className="mb-6 text-right">
-                <h4 className="text-lg sm:text-xl font-bold mb-4">العروض المختارة</h4>
-                <div className="space-y-3">
-                  {selectedBundles.map((bundle, index) => (
-                    <div key={index} className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => removeBundle(index)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                        <span className="text-gray-700 text-sm sm:text-base">{bundle.title} ({bundle.quantity} قطع - {bundle.bundlePrice} ريال)</span>
+                      <div className="mb-6 text-right">
+                        <h4 className="text-lg sm:text-xl font-bold mb-4">اختر اللون والكمية</h4>
+                        <div className="space-y-4">
+                          {[
+                            { name: "أخضر", value: "أخضر", color: "bg-green-900" },
+                            { name: "وردي", value: "وردي", color: "bg-pink-500" },
+                          ].map((colorOption, index) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className={`w-5 h-5 rounded-full ${colorOption.color}`}></span>
+                                <span className="font-bold text-base sm:text-lg">{colorOption.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <button 
+                                  type="button"
+                                  onClick={() => updateQuantity(colorOption.value as Color, -1)} 
+                                  className="w-8 h-8 bg-gray-200 rounded-full text-lg font-bold hover:bg-gray-300 transition-colors"
+                                >
+                                  -
+                                </button>
+                                <span className="text-xl font-bold">{colorQuantities[colorOption.value as Color]}</span>
+                                <button 
+                                  type="button"
+                                  onClick={() => updateQuantity(colorOption.value as Color, 1)} 
+                                  className="w-8 h-8 bg-pink-500 text-white rounded-full text-lg font-bold hover:bg-pink-600 transition-colors"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <button
-                        onClick={() => addBundle(bundle.title, bundle.quantity, bundle.bundlePrice)}
-                        className="text-green-600 hover:text-green-800 transition-colors"
-                      >
-                        <span className="text-xl font-bold">+</span>
-                      </button>
-                    </div>
-                  ))}
+                      
+                      <div className="bg-gray-50 p-4 rounded-xl">
+                        <div className="flex justify-between items-center mb-4 flex-row-reverse">
+                          <span className="text-2xl sm:text-3xl font-extrabold text-green-900">{calculateTotal()} ريال</span>
+                          <span className="font-bold text-base sm:text-lg">الإجمالي</span>
+                        </div>
+                        <motion.button 
+                          type="submit"
+                          className="w-full py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg hover:shadow-xl transition-all duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          اشتري الآن
+                        </motion.button>
+                      </div>
+                    </form>
+                  </motion.div>
                 </div>
-              </div>
-            )}
+              </section>
 
-            <div className="mb-6 text-right">
-              <h4 className="text-lg sm:text-xl font-bold mb-4">اختر اللون والكمية</h4>
-              <div className="space-y-4">
-                {[
-                  { name: "أخضر", value: "أخضر" as const, color: "bg-green-900" },
-                  { name: "وردي", value: "وردي" as const, color: "bg-pink-500" },
-                ].map((colorOption, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className={`w-5 h-5 rounded-full ${colorOption.color}`}></span>
-                      <span className="font-bold text-base sm:text-lg">{colorOption.name}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => updateQuantity(colorOption.value, -1)} 
-                        className="w-8 h-8 bg-gray-200 rounded-full text-lg font-bold hover:bg-gray-300 transition-colors"
+              <section id="testimonials" className="py-16 bg-white">
+                <div className="container mx-auto px-4">
+                  <motion.h2 
+                    className="text-3xl sm:text-4xl font-extrabold text-center mb-12 text-green-900"
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    وش قالوا العملاء؟
+                  </motion.h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {[
+                      { name: "أحمد", text: "منتج فخم، القهوة دايم دافئة!" },
+                      { name: "سارة", text: "تصميمه رائع والخدمة متميزة، أنصح به بشدة" },
+                      { name: "محمد", text: "استخدمه يومياً، مسخن القهوة الأفضل جربته" }
+                    ].map((review, index) => (
+                      <motion.div 
+                        key={index}
+                        className="bg-gray-50 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.2 }}
                       >
-                        -
-                      </button>
-                      <span className="text-xl font-bold">{colorQuantities[colorOption.value]}</span>
-                      <button 
-                        onClick={() => updateQuantity(colorOption.value, 1)} 
-                        className="w-8 h-8 bg-pink-500 text-white rounded-full text-lg font-bold hover:bg-pink-600 transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
+                        <div className="flex justify-end mb-4">
+                          {Array(5).fill(0).map((_, i) => (
+                            <Star key={i} size={18} className="text-yellow-500 fill-yellow-500 mr-1" />
+                          ))}
+                        </div>
+                        <p className="text-gray-700 text-base sm:text-lg mb-4">"{review.text}"</p>
+                        <p className="font-bold text-lg sm:text-xl text-green-900">{review.name}</p>
+                      </motion.div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <div className="flex justify-between items-center mb-4 flex-row-reverse">
-                <span className="text-2xl sm:text-3xl font-extrabold text-green-900">{calculateTotal()} ريال</span>
-                <span className="font-bold text-base sm:text-lg">الإجمالي</span>
-              </div>
-              <motion.button 
-                className="w-full py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg hover:shadow-xl transition-all duration-300"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                اشتري الآن
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="testimonials" className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.h2 
-            className="text-3xl sm:text-4xl font-extrabold text-center mb-12 text-green-900"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            وش قالوا العملاء؟
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[
-              { name: "أحمد", text: "منتج فخم، القهوة دايم دافئة!" },
-              { name: "سارة", text: "تصميمه رائع والخدمة متميزة، أنصح به بشدة" },
-              { name: "محمد", text: "استخدمه يومياً، مسخن القهوة الأفضل جربته" }
-            ].map((review, index) => (
-              <motion.div 
-                key={index}
-                className="bg-gray-50 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-              >
-                <div className="flex justify-end mb-4">
-                  {Array(5).fill(0).map((_, i) => (
-                    <Star key={i} size={18} className="text-yellow-500 fill-yellow-500 mr-1" />
-                  ))}
                 </div>
-                <p className="text-gray-700 text-base sm:text-lg mb-4">"{review.text}"</p>
-                <p className="font-bold text-lg sm:text-xl text-green-900">{review.name}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+              </section>
 
-      <FAQSection />
-      
-      <ReturnPolicySection />
+              <FAQSection />
+              
+              <ReturnPolicySection />
 
-      <section className="py-16 bg-gradient-to-r from-pink-600 to-pink-500 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <motion.h2 
-            className="text-3xl sm:text-4xl font-extrabold mb-4"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            خصم 35% الآن!
-          </motion.h2>
-          <motion.p 
-            className="text-lg sm:text-xl mb-6 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            لا تفوت الفرصة - اطلب مسخن القهوة اليوم واستمتع بخبرة فريدة!
-          </motion.p>
-          <motion.button 
-            onClick={scrollToForm}
-            className="px-6 py-3 bg-white text-green-900 rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            اطلب قبل ما يخلّص
-          </motion.button>
-        </div>
-      </section>
+              <section className="py-16 bg-gradient-to-r from-pink-600 to-pink-500 text-white">
+                <div className="container mx-auto px-4 text-center">
+                  <motion.h2 
+                    className="text-3xl sm:text-4xl font-extrabold mb-4"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    خصم 35% الآن!
+                  </motion.h2>
+                  <motion.p 
+                    className="text-lg sm:text-xl mb-6 max-w-2xl mx-auto"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    لا تفوت الفرصة - اطلب مسخن القهوة اليوم واستمتع بخبرة فريدة!
+                  </motion.p>
+                  <motion.button 
+                    onClick={scrollToForm}
+                    className="px-6 py-3 bg-white text-green-900 rounded-lg font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    اطلب قبل ما يخلّص
+                  </motion.button>
+                </div>
+              </section>
 
-      <footer className="bg-green-900 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              {logoSrc === 'fallback' ? (
-                <FallbackLogo />
-              ) : logoSrc ? (
-                <img src={logoSrc} alt="HeatMug Logo" className="h-12 object-contain bg-white p-2 rounded-lg" />
-              ) : (
-                <div className="w-24 h-8 bg-gray-200 animate-pulse rounded"></div>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-4 justify-center mb-4 md:mb-0">
-              {['الرئيسية', 'المميزات', 'الباقات', 'الطلب', 'الآراء', 'الأسئلة', 'الإرجاع'].map((item, index) => (
-                <a 
-                  key={index} 
-                  href={`#${item === 'الرئيسية' ? '' : item === 'المميزات' ? 'features' : item === 'الباقات' ? 'bundles' : item === 'الطلب' ? 'order-form' : item === 'الآراء' ? 'testimonials' : item === 'الأسئلة' ? 'faq' : 'return-policy'}`}
-                  className="text-gray-300 hover:text-white transition-colors text-sm"
+              <footer className="bg-green-900 text-white py-8">
+                <div className="container mx-auto px-4">
+                  <div className="flex flex-col md:flex-row justify-between items-center">
+                    <div className="mb-4 md:mb-0">
+                      {logoSrc === 'fallback' ? (
+                        <FallbackLogo />
+                      ) : logoSrc ? (
+                        <img src={logoSrc} alt="HeatMug Logo" className="h-12 object-contain bg-white p-2 rounded-lg" />
+                      ) : (
+                        <div className="w-24 h-8 bg-gray-200 animate-pulse rounded"></div>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-4 justify-center mb-4 md:mb-0">
+                      {['الرئيسية', 'المميزات', 'الباقات', 'الطلب', 'الآراء', 'الأسئلة', 'الإرجاع'].map((item, index) => (
+                        <a 
+                          key={index} 
+                          href={`#${item === 'الرئيسية' ? '' : item === 'المميزات' ? 'features' : item === 'الباقات' ? 'bundles' : item === 'الطلب' ? 'order-form' : item === 'الآراء' ? 'testimonials' : item === 'الأسئلة' ? 'faq' : 'return-policy'}`}
+                          className="text-gray-300 hover:text-white transition-colors text-sm"
+                        >
+                          {item}
+                        </a>
+                      ))}
+                    </div>
+                    <p className="font-bold text-sm sm:text-base">© 2025 HeatMug - جميع الحقوق محفوظة</p>
+                  </div>
+                </div>
+              </footer>
+            </>
+          } />
+          <Route path="/thank-you" element={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 text-right px-4">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl max-w-lg mx-auto text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-6"
                 >
-                  {item}
+                  <CheckCircle size={60} className="text-green-600 mx-auto" />
+                </motion.div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-green-900 mb-4">شكراً على طلبك!</h1>
+                <p className="text-lg sm:text-xl text-gray-700 mb-2">
+                  رقم طلبك: <strong>{new URLSearchParams(window.location.search).get('orderId')}</strong>
+                </p>
+                <p className="text-gray-600 mb-6">هنتواصل معاك قريب لتأكيد الطلب.</p>
+                <a
+                  href="/"
+                  className="inline-block px-6 py-3 bg-gradient-to-r from-green-800 to-green-600 text-white rounded-lg font-bold text-base sm:text-lg hover:shadow-xl transition-all duration-300"
+                >
+                  العودة للرئيسية
                 </a>
-              ))}
+              </div>
             </div>
-            <p className="font-bold text-sm sm:text-base">© 2025 HeatMug - جميع الحقوق محفوظة</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+          } />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 };
 
